@@ -1,33 +1,31 @@
 local collider = require(script.Parent)
 
-local module = {}
+local module = setmetatable({}, collider)
 module.__index = module
 
+function module:intersectCircle(other)
+    local distance : number = (self.rigidbody2d.position + other.rigidbody2d.position).Magnitude
+    local radii = self.radius + other.radius
+
+    if (distance > radii) then
+        return false
+    end
+
+    local outNormal = (other.rigidbody2d.position - self.rigidbody2d.position).Unit
+    local outDepth = radii - distance
+
+    return true, outNormal, outDepth
+end
 
 function module.new(radius : number)
     local collider = collider.new()
-    local new = setmetatable(collider, module)
+    local self = setmetatable(collider, module)
 
-    new.radius = radius
+    self.radius = radius
 
-    new.area = math.pi * new.radius^2
+    self.area = math.pi * self.radius^2
 
-    new.intersectCircle = function(other)
-        local distance : number = (new.rigidbody2d.position + other.rigidbody2d.position).Magnitude
-        local radii = new.radius + other.radius
-
-        if (distance > radii) then
-            return false
-        end
-
-        local outNormal = (other.rigidbody2d.position - new.rigidbody2d.position).Unit
-        local outDepth = distance - radii
-
-        return true, outNormal, outDepth
-    end
-
-    return new
+    return self
 end
-
 
 return module

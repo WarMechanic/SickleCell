@@ -1,19 +1,19 @@
 local module = {}
 module.__index = module
 
+function module:test()
+    print("hi")
+    print(self)
+end
 
 function module.new()
-    local new = setmetatable({}, module)
+    local self = setmetatable({}, module)
 
     -- area is determined by the shape
-    new.area = 0
-    new.rigidbody2d = nil
+    self.area = 0
+    self.rigidbody2d = nil
 
-    --unimplemented, implement in children
-    new.intersectCircle = function() return false end
-    new.intersectPolygon = function() return false end
-
-    return new
+    return self
 end
 
 
