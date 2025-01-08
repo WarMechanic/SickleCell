@@ -1,8 +1,16 @@
+-- require circle collider for default collider
 local circleCollider = require(script.Parent.collider.circle)
 
 local module = {}
 module.__index = module
 
+-- !!!! todo: multiple collider support
+function module:setCollider(collider)
+    self.collider = collider
+    collider.rigidbody2d = self
+
+    return true
+end
 
 function module.new()
     local new = setmetatable({}, module)
@@ -13,12 +21,8 @@ function module.new()
     new.rotation = Vector2.new()
     new.rotationalVelocity = Vector2.new()
 
-    -- !!!! todo: multiple collider support
-    new.setCollider = function(collider)
-        new.collider = collider
-        collider.rigidbody2d = new
-    end
-    new.setCollider(circleCollider.new(1))
+    -- default to a circle, simplest shape
+    new:setCollider(circleCollider.new(1))
 
     -- density is a constant, mass scales off density and geometry
     new.density = 1

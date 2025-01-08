@@ -1,3 +1,4 @@
+--base class for colliders
 local module = {}
 module.__index = module
 
