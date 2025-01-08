@@ -6,6 +6,10 @@ module.__index = module
 
 -- !!!! todo: multiple collider support
 function module:setCollider(collider)
+    if (not collider) then
+        return false
+    end
+
     self.collider = collider
     collider.rigidbody2d = self
 
