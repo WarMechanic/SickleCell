@@ -4,7 +4,7 @@ local module = setmetatable({}, collider)
 module.__index = module
 
 function module:intersectCircle(other)
-    local distance : number = (self.rigidbody2d.position + other.rigidbody2d.position).Magnitude
+    local distance : number = (other.rigidbody2d.position - self.rigidbody2d.position).Magnitude
     local radii = self.radius + other.radius
 
     if (distance > radii) then
