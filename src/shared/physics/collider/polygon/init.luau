@@ -117,7 +117,7 @@ function module:intersectPolygon(other : Polygon)
 
     if (depthB < depthA) then
         outNormal = normalB
-        outDepth = normalB
+        outDepth = depthB
     end
 
     -- we dont normalise depth until now to save resources
