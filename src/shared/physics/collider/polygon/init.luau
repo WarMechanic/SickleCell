@@ -69,9 +69,13 @@ local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>
     local outNormal = Vector2.zero
     local outDepth = math.huge
 
+    if (verticesA == nil or verticesB == nil) then
+        return false, outNormal, outDepth
+    end
+
     -- use current and next vertex to create edges, and then create normals
     for index, vertex : Vector2 in verticesA do
-        local vertexNext = verticesA[index % verticesA.length + 1]
+        local vertexNext = verticesA[index % #verticesA + 1]
 
         local edge = vertexNext - vertex
         local axis = Vector2.new(-edge.Y, edge.X)
@@ -126,7 +130,7 @@ function module.new(vertices : table<Vector2>) : Polygon
     self:setVertices(vertices)
 
     self._transformRotation = 0
-    self._transformVertices = self.vertices
+    self._transformVertices = self.vertices or {}
 
     return self
 end

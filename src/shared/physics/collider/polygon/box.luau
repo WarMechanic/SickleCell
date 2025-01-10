@@ -29,7 +29,7 @@ function module.new(size) : polygon.Polygon
     local polygon = polygon.new()
     local self = setmetatable(polygon, module)
 
-    self.size = size
+    self:setSize(size)
 
     return self
 end

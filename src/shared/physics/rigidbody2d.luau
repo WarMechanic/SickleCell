@@ -19,7 +19,7 @@ export type Rigidbody2d = {
 -- !!!! todo: multiple collider support
 function module:setCollider(collider)
     self.collider = collider
-    collider.rigidbody2d = self
+    self.collider.rigidbody2d = self
 
     return self.collider
 end
@@ -34,7 +34,7 @@ function module.new() : Rigidbody2d
     new.rotationalVelocity = 0
 
     -- default to a circle, simplest shape
-    new:trySetCollider(circleCollider.new(1))
+    new:setCollider(circleCollider.new(1))
 
     -- density is a constant, mass scales off density and geometry
     new.density = 1
