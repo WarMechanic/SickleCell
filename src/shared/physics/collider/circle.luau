@@ -8,6 +8,10 @@ export type Circle = collider.Collider&{
     ,
 }
 
+function module:calculateArea()
+    return math.pi * self.radius^2
+end
+
 -- check if two circle colliders intersect, does NOT resolve collisions (useful for triggers)
 function module:intersectCircle(other)
     local distance : number = (other.rigidbody2d.position - self.rigidbody2d.position).Magnitude

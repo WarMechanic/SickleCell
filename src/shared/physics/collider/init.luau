@@ -14,6 +14,11 @@ function module:test()
     print(self)
 end
 
+--implemented in child classes
+function module:calculateArea()
+    return 0
+end
+
 function module.new() : Collider
     local self = setmetatable({}, module)
     self.rigidbody2d = nil
