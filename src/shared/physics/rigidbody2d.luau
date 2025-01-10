@@ -1,8 +1,20 @@
 -- require circle collider for default collider
+local collider = require(script.Parent.collider)
 local circleCollider = require(script.Parent.collider.circle)
 
 local module = {}
 module.__index = module
+
+export type rigidbody2d = {
+    position : Vector2
+    ,linearVelocity : Vector2
+    ,rotation : number
+    ,rotationalVelocity : number
+    ,collider : collider.collider
+    ,density : number
+    ,mass : number
+    ,isStatic : boolean
+}
 
 -- !!!! todo: multiple collider support
 function module:setCollider(collider)
@@ -22,8 +34,8 @@ function module.new()
     new.position = Vector2.new()
     new.linearVelocity = Vector2.new()
 
-    new.rotation = Vector2.new()
-    new.rotationalVelocity = Vector2.new()
+    new.rotation = 0
+    new.rotationalVelocity = 0
 
     -- default to a circle, simplest shape
     new:setCollider(circleCollider.new(1))
