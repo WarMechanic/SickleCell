@@ -1,11 +1,9 @@
-local rigidbody2d = require(script.Parent.rigidbody2d)
-
 --base class for colliders
 local module = {}
 module.__index = module
 
 export type Collider = {
-    rigidbody2d : rigidbody2d.Rigidbody2d
+    rigidbody2d : Rigidbody2d
     ,area : number
 }
 
