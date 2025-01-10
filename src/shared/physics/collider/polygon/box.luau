@@ -13,11 +13,13 @@ end
 
 function module:setSize(size : Vector2)
     self.size = size
+
+    local halfSize : Vector2 = self.size / 2
     self:setVertices({
-         Vector2.new( self.size.X,  self.size.Y)
-        ,Vector2.new( self.size.X, -self.size.Y)
-        ,Vector2.new(-self.size.X, -self.size.Y)
-        ,Vector2.new(-self.size.X,  self.size.Y)
+         Vector2.new( halfSize.X,  halfSize.Y)
+        ,Vector2.new( halfSize.X, -halfSize.Y)
+        ,Vector2.new(-halfSize.X, -halfSize.Y)
+        ,Vector2.new(-halfSize.X,  halfSize.Y)
     })
 
     return true
