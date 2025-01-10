@@ -5,19 +5,19 @@ local circleCollider = require(script.Parent.collider.circle)
 local module = {}
 module.__index = module
 
-export type rigidbody2d = {
+export type Rigidbody2d = {
     position : Vector2
     ,linearVelocity : Vector2
     ,rotation : number
     ,rotationalVelocity : number
-    ,collider : collider.collider
+    ,collider : collider.Collider
     ,density : number
     ,mass : number
     ,isStatic : boolean
 }
 
 -- !!!! todo: multiple collider support
-function module:setCollider(collider)
+function module:trySetCollider(collider)
     if (not collider) then
         return false
     end
@@ -25,10 +25,10 @@ function module:setCollider(collider)
     self.collider = collider
     collider.rigidbody2d = self
 
-    return true
+    return true, self.collider
 end
 
-function module.new()
+function module.new() : Rigidbody2d
     local new = setmetatable({}, module)
 
     new.position = Vector2.new()
@@ -38,7 +38,7 @@ function module.new()
     new.rotationalVelocity = 0
 
     -- default to a circle, simplest shape
-    new:setCollider(circleCollider.new(1))
+    new:trySetCollider(circleCollider.new(1))
 
     -- density is a constant, mass scales off density and geometry
     new.density = 1
