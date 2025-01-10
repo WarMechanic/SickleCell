@@ -1,0 +1,98 @@
+-- inherit from collider
+local collider = require(script.Parent)
+local module = setmetatable({}, collider)
+module.__index = module
+
+export type Polygon = collider.Collider&{
+    vertices: table<Vector2>
+    ,_transformRotation: number
+    ,_transformVertices: table<Vector2>
+}
+
+function module:setVertices(vertices : table<Vector2>)
+    self.vertices = vertices
+    self.area = self:calculateArea()
+
+    return true
+end
+
+-- vector rotation matrix
+local getTransformVertex = function(vertex : Vector2, rotation : number)
+    return Vector2.new(
+        vertex.X * math.cos(rotation) - vertex.Y * math.sin(rotation)
+        ,vertex.X * math.sin(rotation) + vertex.Y * math.cos(rotation)
+    )
+end
+
+-- get transformed vertices based on rigidbody angle
+function module:getTransformedVertices() : ...Vector2
+    -- (optimisation)
+    -- if transformRotation is identical to last time then we can simply return transformVertices
+    if self.rigidbody2d.rotation == self.transformRotation or self.transformVertices == {} then
+        return self._transformVertices
+    end
+
+    -- otherwise transform all the vertices and cache the result
+    self.transformRotation = self.rigidbody2d.rotation
+    for index, vertex : Vector2 in self.vertices do
+        self._transformVertices[index] = getTransformVertex(vertex, self.transformRotation) 
+    end
+
+    return self._transformVertices
+end
+
+-- pre-req functions for module:intersectPolygon
+-- projects a set of vertices on an axis to find minimum and maximum values
+local projectVertices = function(vertices : table<Vector2>, axis : Vector2) : boolean & number & number
+    local min = math.huge
+    local max = -math.huge
+    
+    for index, vertex : Vector2 in vertices do
+        local projection = vertex:Dot(axis)
+        if      (projection < min) then min = projection
+        elseif  (projection > max) then max = projection
+        end
+    end
+
+    return true, min, max
+end
+
+-- tests all vertices from shapes A and B on normal axes of vertices A
+local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>)
+    for index, vertex : Vector2 in verticesA do
+        local vertexNext = verticesA[index % verticesA.length + 1]
+
+        local edge = vertexNext - vertex
+        local axis = Vector2.new(-edge.Y, edge.X)
+
+        local _, minA, maxA = projectVertices(verticesA, axis)
+        local _, minB, maxB = projectVertices(verticesB, axis)
+
+        if (minA >= maxB or minB >= maxA) then return false end
+    end
+end
+
+-- runs aforementioned test twice, where both this and the other polygon are used as main shapes
+-- check if two circle colliders intersect, does NOT resolve collisions (useful for triggers)
+function module:intersectPolygon(other : Polygon)
+    if (testAxes(self:getTransformedVertices(), other:getTransformedVertices())
+        or testAxes(other:getTransformedVertices(), self:getTransformedVertices())) then
+        return true   
+    end
+    return false
+end
+
+function module.new(vertices : table<Vector2>) : Polygon
+    local collider = collider.new()
+    local self = setmetatable(collider, module)
+
+    -- vertices are a table of vectors
+    self:setVertices(vertices)
+
+    self._transformRotation = 0
+    self._transformVertices = self.vertices
+
+    return self
+end
+
+return module
