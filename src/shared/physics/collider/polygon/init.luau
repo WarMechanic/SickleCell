@@ -59,27 +59,56 @@ end
 
 -- tests all vertices from shapes A and B on normal axes of vertices A
 local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>)
+    local outNormal = Vector2.zero
+    local outDepth = math.huge
+
+    -- use current and next vertex to create edges, and then create normals
     for index, vertex : Vector2 in verticesA do
         local vertexNext = verticesA[index % verticesA.length + 1]
 
         local edge = vertexNext - vertex
         local axis = Vector2.new(-edge.Y, edge.X)
 
+        -- project all vertices along this axis to find mins and maxes
         local _, minA, maxA = projectVertices(verticesA, axis)
         local _, minB, maxB = projectVertices(verticesB, axis)
 
-        if (minA >= maxB or minB >= maxA) then return false end
+        -- escape if we find an axis that does not intersect
+        if (minA >= maxB or minB >= maxA) then return false, outNormal, outDepth end
+
+        -- otherwise, store the minimum depth
+        local axisDepth = math.min(maxB - minA, maxA - minB)
+        if (axisDepth < outDepth) then
+            outNormal = axis
+            outDepth = axisDepth
+        end
     end
+
+    return true, outNormal, outDepth
 end
 
 -- runs aforementioned test twice, where both this and the other polygon are used as main shapes
 -- check if two circle colliders intersect, does NOT resolve collisions (useful for triggers)
 function module:intersectPolygon(other : Polygon)
-    if (testAxes(self:getTransformedVertices(), other:getTransformedVertices())
-        or testAxes(other:getTransformedVertices(), self:getTransformedVertices())) then
-        return true   
+    local testA, normalA, depthA = testAxes(self:getTransformedVertices(), other:getTransformedVertices())
+    local testB, normalB, depthB = testAxes(other:getTransformedVertices(), self:getTransformedVertices())
+    if (not (testA or testB)) then
+        return false
     end
-    return false
+
+    local outNormal = normalA
+    local outDepth = depthA
+
+    if (depthB < depthA) then
+        outNormal = normalB
+        outDepth = normalB
+    end
+    
+    -- we dont normalise depth until now to save resources
+    outDepth /= outNormal.Magnitude
+    outNormal = outNormal.Unit
+
+    return true, outNormal, outDepth
 end
 
 function module.new(vertices : table<Vector2>) : Polygon
