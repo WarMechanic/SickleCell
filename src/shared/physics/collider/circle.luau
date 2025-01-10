@@ -3,6 +3,11 @@ local collider = require(script.Parent)
 local module = setmetatable({}, collider)
 module.__index = module
 
+export type Circle = collider.Collider&{
+    radius : number
+    ,
+}
+
 -- check if two circle colliders intersect, does NOT resolve collisions (useful for triggers)
 function module:intersectCircle(other)
     local distance : number = (other.rigidbody2d.position - self.rigidbody2d.position).Magnitude
