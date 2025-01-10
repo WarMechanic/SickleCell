@@ -124,6 +124,11 @@ function module:intersectPolygon(other : Polygon)
     outDepth /= outNormal.Magnitude
     outNormal = outNormal.Unit
 
+    -- ensure the normal is pointing outward rather than inward
+    -- LIMITATION, assumes that the average position is in the center, this won't always be the case!
+    local direction : Vector2 = other.rigidbody2d.position - self.rigidbody2d.position
+    if (direction:Dot(outNormal) < 0) then outNormal = -outNormal end
+
     return true, outNormal, outDepth
 end
 
