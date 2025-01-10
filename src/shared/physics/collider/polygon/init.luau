@@ -9,6 +9,13 @@ export type Polygon = collider.Collider&{
     ,_transformVertices: table<Vector2>
 }
 
+-- todo: calculateArea
+--[[
+function module:calculateArea()
+    
+end
+]]
+
 function module:setVertices(vertices : table<Vector2>)
     self.vertices = vertices
     self.area = self:calculateArea()
