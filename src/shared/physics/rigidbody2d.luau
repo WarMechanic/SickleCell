@@ -17,15 +17,11 @@ export type Rigidbody2d = {
 }
 
 -- !!!! todo: multiple collider support
-function module:trySetCollider(collider)
-    if (not collider) then
-        return false
-    end
-
+function module:setCollider(collider)
     self.collider = collider
     collider.rigidbody2d = self
 
-    return true, self.collider
+    return self.collider
 end
 
 function module.new() : Rigidbody2d
