@@ -34,15 +34,20 @@ end
 -- get transformed vertices based on rigidbody angle
 function module:getTransformedVertices() : ...Vector2
     -- (optimisation)
-    -- if transformRotation is identical to last time then we can simply return transformVertices
-    if self.rigidbody2d.rotation == self.transformRotation or self.transformVertices == {} then
+    -- if transform is identical to last time then we can simply return transformVertices
+    if  self.transformVertices == {} or 
+        (self.rigidbody2d.position == self.transformPosition and self.rigidbody2d.rotation == self.transformRotation)
+    then
         return self._transformVertices
     end
 
     -- otherwise transform all the vertices and cache the result
+    self._transformVertices = {}
+    self.transformPosition = self.rigidbody2d.position
     self.transformRotation = self.rigidbody2d.rotation
+
     for index, vertex : Vector2 in self.vertices do
-        self._transformVertices[index] = getTransformVertex(vertex, self.transformRotation) 
+        self._transformVertices[index] = getTransformVertex(vertex, self.transformRotation) + self.transformPosition
     end
 
     return self._transformVertices
@@ -114,7 +119,7 @@ function module:intersectPolygon(other : Polygon)
         outNormal = normalB
         outDepth = normalB
     end
-    
+
     -- we dont normalise depth until now to save resources
     outDepth /= outNormal.Magnitude
     outNormal = outNormal.Unit
