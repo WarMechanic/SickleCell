@@ -35,19 +35,20 @@ end
 function module:getTransformedVertices() : ...Vector2
     -- (optimisation)
     -- if transform is identical to last time then we can simply return transformVertices
-    if  self.transformVertices == {} or 
-        (self.rigidbody2d.position == self.transformPosition and self.rigidbody2d.rotation == self.transformRotation)
+    if  self._transformVertices ~= {} and 
+        self.rigidbody2d.position == self._transformPosition and
+        self.rigidbody2d.rotation == self._transformRotation
     then
         return self._transformVertices
     end
 
     -- otherwise transform all the vertices and cache the result
     self._transformVertices = {}
-    self.transformPosition = self.rigidbody2d.position
-    self.transformRotation = self.rigidbody2d.rotation
+    self._transformPosition = self.rigidbody2d.position
+    self._transformRotation = self.rigidbody2d.rotation
 
     for index, vertex : Vector2 in self.vertices do
-        self._transformVertices[index] = getTransformVertex(vertex, self.transformRotation) + self.transformPosition
+        self._transformVertices[index] = getTransformVertex(vertex, self._transformRotation) + self._transformPosition
     end
 
     return self._transformVertices
