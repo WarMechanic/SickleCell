@@ -1,5 +1,6 @@
 -- inherit from collider
 local collider = require(script.Parent)
+local collisions = require(script.Parent.Parent.collisions)
 local module = setmetatable({}, collider)
 module.__index = module
 
@@ -54,83 +55,14 @@ function module:getTransformedVertices() : ...Vector2
     return self._transformVertices
 end
 
--- pre-req functions for module:intersectPolygon
--- projects a set of vertices on an axis to find minimum and maximum values
-local projectVertices = function(vertices : table<Vector2>, axis : Vector2) : boolean & number & number
-    local min = math.huge
-    local max = -math.huge
-    
-    for index, vertex : Vector2 in vertices do
-        local projection = vertex:Dot(axis)
-        if      (projection < min) then min = projection
-        elseif  (projection > max) then max = projection
-        end
-    end
-
-    return true, min, max
-end
-
--- tests all vertices from shapes A and B on normal axes of vertices A
-local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>)
-    local outNormal = Vector2.zero
-    local outDepth = math.huge
-
-    if (verticesA == nil or verticesB == nil) then
-        return false, outNormal, outDepth
-    end
-
-    -- use current and next vertex to create edges, and then create normals
-    for index, vertex : Vector2 in verticesA do
-        local vertexNext = verticesA[index % #verticesA + 1]
-
-        local edge = vertexNext - vertex
-        local axis = Vector2.new(-edge.Y, edge.X)
-
-        -- project all vertices along this axis to find mins and maxes
-        local _, minA, maxA = projectVertices(verticesA, axis)
-        local _, minB, maxB = projectVertices(verticesB, axis)
-
-        -- escape if we find an axis that does not intersect
-        if (minA >= maxB or minB >= maxA) then return false, outNormal, outDepth end
-
-        -- otherwise, store the minimum depth
-        local axisDepth = math.min(maxB - minA, maxA - minB)
-        if (axisDepth < outDepth) then
-            outNormal = axis
-            outDepth = axisDepth
-        end
-    end
-
-    return true, outNormal, outDepth
-end
-
--- runs aforementioned test twice, where both this and the other polygon are used as main shapes
 -- check if two circle colliders intersect, does NOT resolve collisions (useful for triggers)
 function module:intersectPolygon(other : Polygon)
-    local testA, normalA, depthA = testAxes(self:getTransformedVertices(), other:getTransformedVertices())
-    local testB, normalB, depthB = testAxes(other:getTransformedVertices(), self:getTransformedVertices())
-    if (not (testA or testB)) then
-        return false
-    end
-
-    local outNormal = normalA
-    local outDepth = depthA
-
-    if (depthB < depthA) then
-        outNormal = normalB
-        outDepth = depthB
-    end
-
-    -- we dont normalise depth until now to save resources
-    outDepth /= outNormal.Magnitude
-    outNormal = outNormal.Unit
-
-    -- ensure the normal is pointing outward rather than inward
-    -- LIMITATION, assumes that the average position is in the center, this won't always be the case!
-    local direction : Vector2 = other.rigidbody2d.position - self.rigidbody2d.position
-    if (direction:Dot(outNormal) < 0) then outNormal = -outNormal end
-
-    return true, outNormal, outDepth
+    return collisions:intersectPolygonPolygon(
+        self.rigidbody2d.position, 
+        other.rigidbody2d.position, 
+        self:getTransformedVertices(), 
+        other:getTransformedVertices()
+    )
 end
 
 function module.new(vertices : table<Vector2>) : Polygon
