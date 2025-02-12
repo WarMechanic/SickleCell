@@ -157,15 +157,6 @@ function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, po
         outDepth = depthB
     end
 
-    -- we dont normalise depth until now to save resources
-    outDepth /= outNormal.Magnitude
-    outNormal = outNormal.Unit
-
-    -- ensure the normal is pointing outward rather than inward
-    -- LIMITATION, assumes that the average position is in the center, this won't always be the case!
-    local direction : Vector2 = positionB - positionA
-    if (direction:Dot(outNormal) < 0) then outNormal = -outNormal end
-
     -- circles require an additional check for the closest point to the circle
     local cpIndex = findClosestPointOnPolygon(positionA, verticesB)
     local cp = verticesB[cpIndex]
@@ -183,6 +174,15 @@ function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, po
         outNormal = axis
         outDepth = axisDepth
     end
+
+    -- we dont normalise depth until now to save resources
+    outDepth /= outNormal.Magnitude
+    outNormal = outNormal.Unit
+
+    -- ensure the normal is pointing outward rather than inward
+    -- LIMITATION, assumes that the average position is in the center, this won't always be the case!
+    local direction : Vector2 = positionB - positionA
+    if (direction:Dot(outNormal) < 0) then outNormal = -outNormal end
 
     return true, outNormal, outDepth
 end
