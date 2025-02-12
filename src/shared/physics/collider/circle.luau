@@ -24,6 +24,15 @@ function module:intersectCircle(other)
     )
 end
 
+function module:intersectPolygon(other)
+    return collisions:intersectCirclePolygon(
+        self.rigidbody2d.position,
+        self.radius,
+        other.rigidbody2d.position,
+        other:getTransformedVertices()
+    )
+end
+
 function module.new(radius : number)
     local collider = collider.new()
     local self = setmetatable(collider, module)

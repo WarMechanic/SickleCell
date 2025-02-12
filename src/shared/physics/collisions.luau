@@ -35,7 +35,7 @@ local projectVerticesPolygon = function(vertices : table<Vector2>, axis : Vector
     return true, min, max
 end
 
-local projectVerticesCircle = function(vertices : table<Vector2>, axis : Vector2, radius : number)
+local projectVerticesCircle = function(vertices : table<Vector2> | Vector2, axis : Vector2, radius : number)
     local position = vertices[1]
     local direction = axis.Unit
     local directionAndRadius = direction * radius
@@ -56,6 +56,10 @@ local projectVerticesCircle = function(vertices : table<Vector2>, axis : Vector2
 end
 
 local projectVertices = function(vertices: table, axis : Vector2, radius : number?)
+    if type(vertices) ~= "table" then
+        vertices = {vertices}
+    end
+
     if not radius then
         return projectVerticesPolygon(vertices, axis)
     end
@@ -68,6 +72,10 @@ local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>
 
     if (verticesA == nil or verticesB == nil) then
         return false, outNormal, outDepth
+    end
+
+    if type(verticesA) ~= "table" then
+        verticesA = {verticesA}
     end
 
     -- use current and next vertex to create edges, and then create normals
@@ -96,8 +104,8 @@ local testAxes = function(verticesA : table<Vector2>, verticesB : table<Vector2>
 end
 
 function module:intersectPolygonPolygon(positionA : Vector2, positionB : Vector2, verticesA, verticesB)
-    local testA, normalA, depthA = testAxes(verticesA, verticesB, nil, nil, projectVerticesPolygon, projectVerticesPolygon)
-    local testB, normalB, depthB = testAxes(verticesB, verticesA, nil, nil, projectVerticesPolygon, projectVerticesPolygon)
+    local testA, normalA, depthA = testAxes(verticesA, verticesB, nil, nil)
+    local testB, normalB, depthB = testAxes(verticesB, verticesA, nil, nil)
     if (not (testA or testB)) then
         return false
     end
@@ -143,8 +151,8 @@ local findClosestPointOnPolygon = function(center : Vector2, vertices : table)
 end
 
 function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, positionB, verticesB)
-    local testA, normalA, depthA = testAxes(positionA, verticesB, radiusA, nil, projectVerticesCircle, projectVerticesPolygon)
-    local testB, normalB, depthB = testAxes(verticesB, positionA, nil, radiusA, projectVerticesPolygon, projectVerticesPolygon)
+    local testA, normalA, depthA = testAxes(positionA, verticesB, radiusA, nil)
+    local testB, normalB, depthB = testAxes(verticesB, positionA, nil, radiusA)
     if (not (testA or testB)) then
         return false
     end
@@ -158,14 +166,14 @@ function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, po
     end
 
     -- circles require an additional check for the closest point to the circle
-    local cpIndex = findClosestPointOnPolygon(positionA, verticesB)
+    local _, cpIndex = findClosestPointOnPolygon(positionA, verticesB)
     local cp = verticesB[cpIndex]
 
     local axis = cp - positionA
 
     -- axis test from circle to closest point
     local _, minA, maxA = projectVertices(positionA, axis, radiusA)
-    local _, minB, maxB = projectVertices(verticesB, axis)
+    local _, minB, maxB = projectVertices(verticesB, axis, nil)
 
     if (minA >= maxB or minB >= maxA) then return false, outNormal, outDepth end
 
