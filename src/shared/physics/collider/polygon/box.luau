@@ -8,7 +8,7 @@ export type Box = polygon.Polygon&{
 }
 
 function module:calculateArea()
-    return self.size.X
+    return self.size.X * self.size.Y
 end
 
 function module:setSize(size : Vector2)
