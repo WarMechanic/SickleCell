@@ -3,6 +3,26 @@
 registry = "test"
 
 [[package]]
+name = "data-oriented-house/squash"
+version = "2.5.0"
+dependencies = []
+
+[[package]]
+name = "evaera/cmdr"
+version = "1.12.0"
+dependencies = []
+
+[[package]]
+name = "evaera/promise"
+version = "4.0.0"
+dependencies = []
+
+[[package]]
+name = "ukendio/jecs"
+version = "0.5.3"
+dependencies = []
+
+[[package]]
 name = "warmechanic/sicklecell"
 version = "0.1.0"
-dependencies = []
+dependencies = [["Jecs", "ukendio/jecs@0.5.3"], ["Promise", "evaera/promise@4.0.0"], ["Squash", "data-oriented-house/squash@2.5.0"]]
