@@ -3,7 +3,7 @@ local polygon = require(script.Parent)
 local module = setmetatable({}, polygon)
 module.__index = module
 
-export type Box = polygon.Polygon&{
+export type Rect = polygon.Polygon&{
     size : Vector2
 }
 
