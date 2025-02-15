@@ -1,0 +1,13 @@
+[package]
+name = "warmechanic/sicklecell"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+ukendio/jecs@0.5.3
+data-oriented-house/squash@2.5.0
+evaera/promise@4.0.0
+
+[server-dependencies]
+evaera/cmdr@1.12.0
