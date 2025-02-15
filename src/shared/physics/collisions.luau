@@ -150,38 +150,40 @@ local findClosestPointOnPolygon = function(center : Vector2, vertices : table)
     return false
 end
 
-function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, positionB, verticesB)
-    local testA, normalA, depthA = testAxes(positionA, verticesB, radiusA, nil)
-    local testB, normalB, depthB = testAxes(verticesB, positionA, nil, radiusA)
-    if (not (testA or testB)) then
+function module:intersectCirclePolygon(circlePosition : Vector2, circleRadius : number, polygonPosition : Vector2, polygonVertices : table)
+    local circleTest, circleNormal, circleDepth = testAxes(circlePosition, polygonVertices, circleRadius, nil)
+    local polygonTest, polygonNormal, polygonDepth = testAxes(polygonVertices, circlePosition, nil, circleRadius)
+    if (not (circleTest or polygonTest)) then
         return false
     end
 
-    local outNormal = normalA
-    local outDepth = depthA
+    local outNormal = circleNormal
+    local outDepth = circleDepth
 
-    if (depthB < depthA) then
-        outNormal = normalB
-        outDepth = depthB
+    if (polygonDepth < circleDepth) then
+        outNormal = polygonNormal
+        outDepth = polygonDepth
     end
-
+ 
     -- circles require an additional check for the closest point to the circle
-    local _, cpIndex = findClosestPointOnPolygon(positionA, verticesB)
-    local cp = verticesB[cpIndex]
+    local _, cpIndex = findClosestPointOnPolygon(circlePosition, polygonVertices)
+    local cp = polygonVertices[cpIndex]
 
-    local axis = cp - positionA
-
+    local axis = cp - circlePosition
+    
     -- axis test from circle to closest point
-    local _, minA, maxA = projectVertices(positionA, axis, radiusA)
-    local _, minB, maxB = projectVertices(verticesB, axis, nil)
+    local _, circleMin, circleMax = projectVertices(circlePosition, axis, circleRadius)
+    local _, polygonMin, polygonMax = projectVertices(polygonVertices, axis, nil)
 
-    if (minA >= maxB or minB >= maxA) then return false, outNormal, outDepth end
+    if (circleMin >= polygonMax or polygonMin >= circleMax) then return false, outNormal, outDepth end
 
-    local axisDepth = math.min(maxB - minA, maxA - minB)
+    local axisDepth = math.min(polygonMax - circleMin, circleMax - polygonMin)
     if (axisDepth < outDepth) then
         outNormal = axis
         outDepth = axisDepth
     end
+
+    if (outNormal.Magnitude == 0) then return false, outNormal, outDepth end
 
     -- we dont normalise depth until now to save resources
     outDepth /= outNormal.Magnitude
@@ -189,7 +191,7 @@ function module:intersectCirclePolygon(positionA : Vector2, radiusA : number, po
 
     -- ensure the normal is pointing outward rather than inward
     -- LIMITATION, assumes that the average position is in the center, this won't always be the case!
-    local direction : Vector2 = positionB - positionA
+    local direction : Vector2 = polygonPosition - circlePosition
     if (direction:Dot(outNormal) < 0) then outNormal = -outNormal end
 
     return true, outNormal, outDepth
