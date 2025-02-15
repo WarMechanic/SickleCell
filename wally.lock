@@ -25,4 +25,4 @@ dependencies = []
 [[package]]
 name = "warmechanic/sicklecell"
 version = "0.1.0"
-dependencies = [["Jecs", "ukendio/jecs@0.5.3"], ["Promise", "evaera/promise@4.0.0"], ["Squash", "data-oriented-house/squash@2.5.0"]]
+dependencies = [["jecs", "ukendio/jecs@0.5.3"], ["promise", "evaera/promise@4.0.0"], ["squash", "data-oriented-house/squash@2.5.0"]]
