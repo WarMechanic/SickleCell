@@ -5,9 +5,9 @@ registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
-Jecs = "ukendio/jecs@0.5.3"
-Squash = "data-oriented-house/squash@2.5.0"
-Promise = "evaera/promise@4.0.0"
+jecs = "ukendio/jecs@0.5.3"
+squash = "data-oriented-house/squash@2.5.0"
+promise = "evaera/promise@4.0.0"
 
 [server-dependencies]
-Cmdr = "evaera/cmdr@1.12.0"
+cmdr = "evaera/cmdr@1.12.0"
